@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificador de Frutas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info-text {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Classificador de Frutas</h1>
+        <p class="info-text">
+            Insira os valores dos "nervos" (de 0.0 a 1.0) para descobrir se é uma Maçã ou Laranja.
+        </p>
+        <form action="/predict" method="post">
+            <div class="form-group">
+                <label for="vermelho">Nervo Vermelho:</label>
+                <input type="number" id="vermelho" name="vermelho" step="0.01" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="amarelo">Nervo Amarelo:</label>
+                <input type="number" id="amarelo" name="amarelo" step="0.01" min="0" max="1" required>
+            </div>
+            <div class="form-group">
+                <label for="rugosidade">Nervo Rugosidade:</label>
+                <input type="number" id="rugosidade" name="rugosidade" step="0.01" min="0" max="1" required>
+            </div>
+            <button type="submit">Classificar</button>
+        </form>
+    </div>
+</body>
+</html>
