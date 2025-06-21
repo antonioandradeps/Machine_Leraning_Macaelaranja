@@ -1,0 +1,159 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+.container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 90%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    text-align: center;
+}
+
+.neural-network-diagram {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative; /* Para posicionar o SVG das conexões */
+    margin-bottom: 40px;
+    padding: 20px 0;
+}
+
+.input-column, .output-column {
+    display: flex;
+    flex-direction: column;
+    gap: 50px; /* Espaçamento entre os neurônios */
+    padding: 20px;
+    z-index: 10; /* Para os neurônios ficarem acima do SVG */
+}
+
+.neuron {
+    background-color: #ecf0f1;
+    border: 2px solid #bdc3c7;
+    border-radius: 50%;
+    width: 120px; /* Tamanho do círculo */
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative; /* Para posicionar o label e slider */
+}
+
+.input-neuron {
+    background-color: #d1e7dd; /* Verde claro */
+    border-color: #28a745;
+}
+
+#yellow-input .neuron-label { color: #f39c12; font-weight: bold; } /* Laranja escuro */
+#red-input .neuron-label { color: #e74c3c; font-weight: bold; } /* Vermelho escuro */
+#roughness-input .neuron-label { color: #8e44ad; font-weight: bold; } /* Roxo */
+
+
+.output-neuron {
+    background-color: #dbe4ff; /* Azul claro */
+    border-color: #007bff;
+}
+
+.neuron-label {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: #4a4a4a;
+}
+
+.value-display, .result-value {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: 5px;
+}
+
+.slider {
+    width: 80%;
+    -webkit-appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    margin-top: 10px;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #007bff;
+    cursor: pointer;
+}
+
+.fruit-icon {
+    width: 60px;
+    height: 60px;
+    margin-top: 10px;
+}
+
+.connections-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Permite clicar nos elementos HTML abaixo do SVG */
+}
+
+.connection-line {
+    stroke: #8d8d8d; /* Cor padrão para as conexões */
+    stroke-width: 2px;
+    transition: stroke-width 0.1s ease, stroke 0.1s ease; /* Transição suave */
+}
+
+/* Exemplo de como você poderia colorir as linhas se o JS passasse IDs/classes */
+/* .connection-line.positive { stroke: #28a745; stroke-width: 4px; } */
+/* .connection-line.negative { stroke: #dc3545; stroke-width: 4px; } */
+
+.prediction-info {
+    margin-top: 20px;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #34495e;
+}
+
+#finalResult {
+    color: #28a745; /* Cor para o resultado final */
+}
