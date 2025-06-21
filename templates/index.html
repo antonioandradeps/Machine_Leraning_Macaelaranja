@@ -3,91 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classificador de Frutas</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: bold;
-        }
-        input[type="number"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: background-color 0.3s ease;
-            width: 100%;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .info-text {
-            font-size: 0.9em;
-            color: #777;
-            margin-top: 10px;
-        }
-    </style>
+    <title>Classificador Interativo de Frutas</title>
+    <link rel="stylesheet" href="{{ url_for('static_files', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Classificador de Frutas</h1>
-        <p class="info-text">
-            Insira os valores dos "nervos" (de 0.0 a 1.0) para descobrir se é uma Maçã ou Laranja.
-        </p>
-        <form action="/predict" method="post">
-            <div class="form-group">
-                <label for="vermelho">Nervo Vermelho:</label>
-                <input type="number" id="vermelho" name="vermelho" step="0.01" min="0" max="1" required>
+        <div class="neural-network-diagram">
+            <div class="input-column">
+                <div class="neuron input-neuron" id="yellow-input">
+                    <div class="neuron-label">Amarelo</div>
+                    <input type="range" min="0" max="1" step="0.01" value="0.5" class="slider" id="sliderYellow">
+                    <span class="value-display" id="valueYellow">0.50</span>
+                </div>
+                <div class="neuron input-neuron" id="red-input">
+                    <div class="neuron-label">Vermelho</div>
+                    <input type="range" min="0" max="1" step="0.01" value="0.5" class="slider" id="sliderRed">
+                    <span class="value-display" id="valueRed">0.50</span>
+                </div>
+                <div class="neuron input-neuron" id="roughness-input">
+                    <div class="neuron-label">Rugosidade</div>
+                    <input type="range" min="0" max="1" step="0.01" value="0.5" class="slider" id="sliderRoughness">
+                    <span class="value-display" id="valueRoughness">0.50</span>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="amarelo">Nervo Amarelo:</label>
-                <input type="number" id="amarelo" name="amarelo" step="0.01" min="0" max="1" required>
+
+            <svg class="connections-svg" width="100%" height="100%">
+                </svg>
+
+            <div class="output-column">
+                <div class="neuron output-neuron" id="apple-output">
+                    <div class="neuron-label">Maçã</div>
+                    <span class="result-value" id="resultApple">0.00</span>
+                    <img src="https://www.flaticon.com/svg/v2/icons/svg/1054/1054593.svg" alt="Maçã" class="fruit-icon">
+                </div>
+                <div class="neuron output-neuron" id="orange-output">
+                    <div class="neuron-label">Laranja</div>
+                    <span class="result-value" id="resultOrange">0.00</span>
+                    <img src="https://www.flaticon.com/svg/v2/icons/svg/1054/1054597.svg" alt="Laranja" class="fruit-icon">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="rugosidade">Nervo Rugosidade:</label>
-                <input type="number" id="rugosidade" name="rugosidade" step="0.01" min="0" max="1" required>
-            </div>
-            <button type="submit">Classificar</button>
-        </form>
+        </div>
+        <div class="prediction-info">
+            <p>Resultado da Classificação: <span id="finalResult">Aguardando...</span></p>
+        </div>
     </div>
+
+    <script>
+        // Funções para manipular os sliders e chamar a API
+        const sliderYellow = document.getElementById('sliderYellow');
+        const valueYellow = document.getElementById('valueYellow');
+        const sliderRed = document.getElementById('sliderRed');
+        const valueRed = document.getElementById('valueRed');
+        const sliderRoughness = document.getElementById('sliderRoughness');
+        const valueRoughness = document.getElementById('valueRoughness');
+
+        const resultApple = document.getElementById('resultApple');
+        const resultOrange = document.getElementById('resultOrange');
+        const finalResult = document.getElementById('finalResult');
+
+        // Referências aos neurônios para calcular posições
+        const yellowInputNeuron = document.getElementById('yellow-input');
+        const redInputNeuron = document.getElementById('red-input');
+        const roughnessInputNeuron = document.getElementById('roughness-input');
+        const appleOutputNeuron = document.getElementById('apple-output');
+        const orangeOutputNeuron = document.getElementById('orange-output');
+        const connectionsSvg = document.querySelector('.connections-svg');
+
+        // Função para desenhar as linhas de conexão
+        function drawConnections() {
+            connectionsSvg.innerHTML = ''; // Limpa as conexões existentes
+
+            const inputNeurons = [yellowInputNeuron, redInputNeuron, roughnessInputNeuron];
+            const outputNeurons = [appleOutputNeuron, orangeOutputNeuron];
+
+            inputNeurons.forEach(inputNeuron => {
+                const inputRect = inputNeuron.getBoundingClientRect();
+                const inputX = inputRect.right;
+                const inputY = inputRect.top + inputRect.height / 2;
+
+                outputNeurons.forEach(outputNeuron => {
+                    const outputRect = outputNeuron.getBoundingClientRect();
+                    const outputX = outputRect.left;
+                    const outputY = outputRect.top + outputRect.height / 2;
+
+                    // Ajusta coordenadas para serem relativas ao SVG
+                    const svgRect = connectionsSvg.getBoundingClientRect();
+                    const startX = inputX - svgRect.left;
+                    const startY = inputY - svgRect.top;
+                    const endX = outputX - svgRect.left;
+                    const endY = outputY - svgRect.top;
+
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute('x1', startX);
+                    line.setAttribute('y1', startY);
+                    line.setAttribute('x2', endX);
+                    line.setAttribute('y2', endY);
+                    line.setAttribute('stroke', '#ccc'); // Cor padrão, será atualizada para simular peso
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('class', 'connection-line');
+                    // Você pode adicionar um ID para cada linha se quiser manipulá-la individualmente
+                    // line.setAttribute('id', `${inputNeuron.id}-to-${outputNeuron.id}`);
+                    connectionsSvg.appendChild(line);
+                });
+            });
+        }
+
+
+        async function updatePrediction() {
+            const vermelho = parseFloat(sliderRed.value);
+            const amarelo = parseFloat(sliderYellow.value);
+            const rugosidade = parseFloat(sliderRoughness.value);
+
+            valueRed.textContent = vermelho.toFixed(2);
+            valueYellow.textContent = amarelo.toFixed(2);
+            valueRoughness.textContent = rugosidade.toFixed(2);
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ vermelho, amarelo, rugosidade }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro na predição');
+                }
+
+                const data = await response.json();
+                resultApple.textContent = data.probabilities.Maçã.toFixed(2);
+                resultOrange.textContent = data.probabilities.Laranja.toFixed(2);
+                finalResult.textContent = data.result;
+
+                // Aqui você pode adicionar lógica para mudar a cor/espessura das linhas
+                // baseadas nas probabilidades ou em pesos reais do modelo (se expostos pela API)
+                // Por simplicidade, vamos apenas atualizar os resultados visuais.
+
+            } catch (error) {
+                console.error('Erro ao buscar predição:', error);
+                finalResult.textContent = `Erro: ${error.message}`;
+                resultApple.textContent = 'N/A';
+                resultOrange.textContent = 'N/A';
+            }
+        }
+
+        // Adicionar listeners para os sliders
+        sliderYellow.addEventListener('input', updatePrediction);
+        sliderRed.addEventListener('input', updatePrediction);
+        sliderRoughness.addEventListener('input', updatePrediction);
+
+        // Chamar a função de desenho das conexões e a predição inicial quando a página carregar
+        window.addEventListener('load', () => {
+            drawConnections();
+            updatePrediction();
+        });
+
+        // Redesenhar as conexões se a janela for redimensionada
+        window.addEventListener('resize', drawConnections);
+
+    </script>
 </body>
 </html>
